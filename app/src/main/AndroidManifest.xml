@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Requerido desde Android 11 (API 30): sin esto, getInstalledApplications()
+         no puede "ver" estas apps aunque estén instaladas, por las
+         restricciones de visibilidad de paquetes. -->
+    <queries>
+        <package android:name="com.instagram.android" />
+        <package android:name="com.linkedin.android" />
+        <package android:name="com.twitter.android" />
+        <package android:name="com.zhiliaoapp.musically" />
+        <package android:name="com.ss.android.ugc.trill" />
+        <package android:name="com.zhiliaoapp.musically.go" />
+        <package android:name="com.facebook.katana" />
+        <package android:name="com.snapchat.android" />
+        <package android:name="com.google.android.youtube" />
+    </queries>
+
+    <!-- Fase 1: detectar qué app está en primer plano -->
+    <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS"
+        tools:ignore="ProtectedPermissions"
+        xmlns:tools="http://schemas.android.com/tools" />
+
+    <!-- Fase 2: dibujar el overlay de bloqueo sobre otras apps -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+
+    <!-- Fase 4: cámara para verificación visual -->
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <!-- Fase 3: notificaciones de horario -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+
+    <!-- Foreground service para el overlay/monitor en background -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+    <uses-feature android:name="android.hardware.camera" android:required="true" />
+
+    <application
+        android:allowBackup="true"
+        android:label="HydrationLock"
+        android:theme="@android:style/Theme.Material.Light.NoActionBar">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:theme="@android:style/Theme.Material.Light.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- Fase 4: pantalla de verificación con cámara real -->
+        <activity
+            android:name=".verification.VerificationActivity"
+            android:exported="false"
+            android:theme="@android:style/Theme.Material.Light.NoActionBar" />
+
+        <!-- Fase 5: pantalla de historial y estadísticas -->
+        <activity
+            android:name=".history.HistoryActivity"
+            android:exported="false"
+            android:theme="@android:style/Theme.Material.Light.NoActionBar" />
+
+        <!-- Fase 1: servicio que detecta apertura de apps bloqueadas -->
+        <service
+            android:name=".blocking.AppWatcherService"
+            android:exported="false"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/accessibility_service_config" />
+        </service>
+
+        <!-- Fase 2: servicio que dibuja el overlay de bloqueo -->
+        <service
+            android:name=".blocking.OverlayService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse" />
+
+        <!-- Fase 3: horarios, snoozes y notificaciones de hidratación -->
+        <receiver android:name=".schedule.HydrationAlarmReceiver" android:exported="false" />
+        <receiver android:name=".schedule.SnoozeAlarmReceiver" android:exported="false" />
+        <receiver android:name=".schedule.NotificationActionReceiver" android:exported="false" />
+        <receiver android:name=".schedule.BootReceiver" android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+    </application>
+</manifest>

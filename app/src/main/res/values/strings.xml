@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">HydrationLock</string>
+    <string name="accessibility_service_description">
+        HydrationLock necesita este permiso para detectar cuándo abres una app
+        que decidiste bloquear (ej. Instagram, TikTok), y así pedirte completar
+        el hábito de tomar agua antes de continuar. No lee ni almacena el
+        contenido de tus apps.
+    </string>
+</resources>
